@@ -1,5 +1,6 @@
 #!/usr/bin/env python2
 # -*- coding: utf-8 -*-
+import logging
 
 from hermes_python.hermes import Hermes
 from os.path import expanduser
@@ -61,6 +62,10 @@ class SkillHarmonyControl:
         if harmony_ip is None or watch_film_activity_id is None:
             print('No configuration')
 
+        # Some logging conf
+        logging.basicConfig(filename='info.log', level=logging.DEBUG)
+        logging.info("End of init action-skills")
+
         self.harmony_controller = HarmonyController(harmony_ip=harmony_ip, aioharmony_path=aioharmony_path)
         self.update_config(CACHE_INI, config, harmony_ip, watch_film_activity_id)
         self.queue = Queue.Queue()
@@ -72,13 +77,13 @@ class SkillHarmonyControl:
     def callback(self, hermes, intent_message):
         print("[HARMONY] Received")
         # all the intents have a house_room slot, extract here
+        logging.info("Callback received : " + intent_message)
 
         intent_name = intent_message.intent.intent_name
         if ':' in intent_name:
             intent_name = intent_name.split(":")[1]
         if intent_name == 'watchFilm':
             self.queue.put(self.start_watch_film(hermes, intent_message))
-
         if intent_name == 'powerOff':
             self.queue.put(self.power_off(hermes, intent_message))
 

@@ -15,10 +15,12 @@ class HarmonyController:
 
         self.base_command = 'python3 ' + self.aioharmony_path + '/aioharmony'
         # Some logging conf
-        logging.basicConfig(filename='error.log', level=logging.WARNING)
+        logging.basicConfig(filename='error.log', level=logging.DEBUG)
+        logging.info("End of init : ip = " + self.harmony_ip + " ; path= " + self.aioharmony_path)
 
     def start_activity(self, activity_id):
         command = [self.base_command, '--harmony_ip ' + self.harmony_ip, 'start_activity ' + activity_id]
+        logging.info("Starting activity with : " + str(command))
         try:
             subprocess.check_call(command)
         except subprocess.CalledProcessError as e:

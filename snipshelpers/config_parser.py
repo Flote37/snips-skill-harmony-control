@@ -3,9 +3,10 @@ import io
 
 CONFIGURATION_ENCODING_FORMAT = "utf-8"
 
+
 class SnipsConfigParser(ConfigParser.SafeConfigParser):
     def to_dict(self):
-        return {section: {option_name : option for option_name, option in self.items(section)} for section in self.sections()}
+        return {section: {option_name: option for option_name, option in self.items(section)} for section in self.sections()}
 
     @staticmethod
     def read_configuration_file(configuration_file):

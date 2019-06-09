@@ -20,7 +20,7 @@ MQTT_IP_ADDR = "localhost"
 MQTT_PORT = 1883
 MQTT_ADDR = "{}:{}".format(MQTT_IP_ADDR, str(MQTT_PORT))
 
-_id = "snips-skill-harmony_control"
+_id = "snips-skill-harmony-control"
 
 AIOHARMONY_PATH = "aioharmony_path"
 HARMONY_IP_CONFIG_KEY = "harmony_ip"

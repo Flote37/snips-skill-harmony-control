@@ -22,6 +22,7 @@ MQTT_ADDR = "{}:{}".format(MQTT_IP_ADDR, str(MQTT_PORT))
 
 _id = "snips-skill-harmony_control"
 
+AIOHARMONY_PATH = "aioharmony_path"
 HARMONY_IP_CONFIG_KEY = "harmony_ip"
 WATCH_FILM_ACTIVITY_CONFIG_KEY = "watch_film_activity_id"
 
@@ -33,9 +34,16 @@ class SkillHarmonyControl:
         except:
             config = None
 
+        aioharmony_path=None
         harmony_ip = None
         watch_film_activity_id = None
         if config and config.get('secret', None) is not None:
+            # Add Lib aioharmony to Path
+            if config.get('global').get(AIOHARMONY_PATH, None) is not None:
+                aioharmony_path = config.get('global').get(AIOHARMONY_PATH)
+                if aioharmony_path == "":
+                    aioharmony_path = None
+
             # Get Harmony IP from Config
             if config.get('secret').get(HARMONY_IP_CONFIG_KEY, None) is not None:
                 harmony_ip = config.get('secret').get(HARMONY_IP_CONFIG_KEY)
@@ -53,7 +61,7 @@ class SkillHarmonyControl:
         if harmony_ip is None or watch_film_activity_id is None:
             print('No configuration')
 
-        self.harmony_controller = HarmonyController(harmony_ip=harmony_ip)
+        self.harmony_controller = HarmonyController(harmony_ip=harmony_ip, aioharmony_path=aioharmony_path)
         self.update_config(CACHE_INI, config, harmony_ip, watch_film_activity_id)
         self.queue = Queue.Queue()
         self.thread_handler = ThreadHandler()

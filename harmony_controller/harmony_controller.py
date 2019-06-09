@@ -19,7 +19,7 @@ class HarmonyController:
         logging.info("End of init : ip = " + self.harmony_ip + " ; path= " + self.aioharmony_path)
 
     def start_activity(self, activity_id):
-        command = [self.base_command, '--harmony_ip ' + self.harmony_ip, 'start_activity ' + activity_id]
+        command = ['python3 ' + self.aioharmony_path + '/aioharmony', '--harmony_ip ' + self.harmony_ip, 'start_activity ' + activity_id]
         logging.info("Starting activity with : " + str(command))
         try:
             subprocess.check_call(command)
@@ -27,7 +27,7 @@ class HarmonyController:
             logging.error("Error while call aioharmony : " + str(e))
 
     def power_off(self):
-        command = [self.base_command, '--harmony_ip ' + self.harmony_ip, 'power_off']
+        command = ['python3 ' + self.aioharmony_path + '/aioharmony', '--harmony_ip ' + self.harmony_ip, 'power_off']
         try:
             subprocess.check_call(command)
         except subprocess.CalledProcessError as e:

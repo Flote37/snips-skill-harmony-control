@@ -30,10 +30,13 @@ WATCH_FILM_ACTIVITY_CONFIG_KEY = "watch_film_activity_id"
 
 class SkillHarmonyControl:
     def __init__(self):
+        print("[HARMONY] Init")
+
         try:
             config = SnipsConfigParser.read_configuration_file(CONFIG_INI)
         except:
             config = None
+            print("[HARMONY] Config exception")
 
         aioharmony_path=None
         harmony_ip = None
@@ -61,6 +64,7 @@ class SkillHarmonyControl:
 
         if harmony_ip is None or watch_film_activity_id is None:
             print('No configuration')
+            print("[HARMONY] No configuration")
 
         # Some logging conf
         logging.basicConfig(filename='info.log', level=logging.DEBUG)

@@ -81,7 +81,7 @@ class SkillHarmonyControl:
     def callback(self, hermes, intent_message):
         print("[HARMONY] Received")
         # all the intents have a house_room slot, extract here
-        logging.info("Callback received : " + intent_message)
+        logging.info("Callback received : " + str(intent_message))
 
         intent_name = intent_message.intent.intent_name
         if ':' in intent_name:

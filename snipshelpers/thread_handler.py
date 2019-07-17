@@ -4,7 +4,7 @@
 import threading
 import time
 
-from singleton import Singleton
+from snipshelpers.singleton import Singleton
 
 
 class ThreadHandler(Singleton):

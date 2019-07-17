@@ -68,6 +68,9 @@ class SkillHarmonyControl:
         print("[HARMONY] Harmony Controller Ready")
 
         self.queue = queue.Queue()
+        self.thread_handler = ThreadHandler()
+        self.thread_handler.run(target=self.start_blocking)
+        self.thread_handler.start_run_loop()
 
         print("[HARMONY] Ending INIT")
 
@@ -105,12 +108,15 @@ class SkillHarmonyControl:
     def subscribe_intent_callback(self, hermes, intent_message):
         self.action_wrapper(hermes, intent_message)
 
+    def start_blocking(self, run_event):
+        while run_event.is_set():
+            try:
+                self.queue.get(False)
+            except queue.Empty:
+                with Hermes(MQTT_ADDR) as h:
+                    h.subscribe_intents(self.subscribe_intent_callback).start()
+
 
 if __name__ == "__main__":
     print("[HARMONY] Starting MAIN")
-
-    skillHarmonyControl = SkillHarmonyControl()
-    mqtt_opts = MqttOptions()
-    with Hermes(mqtt_options=mqtt_opts) as h:
-        h.subscribe_intent("{{intent_id}}", skillHarmonyControl.subscribe_intent_callback) \
-            .start()
+    SkillHarmonyControl()

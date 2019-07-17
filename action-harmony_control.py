@@ -32,10 +32,13 @@ class SkillHarmonyControl:
     snipsConfigParser = SnipsConfigParser()
 
     def __init__(self):
+        print("[HARMONY] Starting INIT")
+
         try:
             config = SnipsConfigParser.read_configuration_file(CONFIG_INI)
         except:
             config = None
+            print("[HARMONY] Config error")
 
         # Config variables to fill
         harmony_ip = None
@@ -59,6 +62,8 @@ class SkillHarmonyControl:
 
         if harmony_ip is None or watch_film_activity_id is None:
             print('No configuration')
+
+        print("[HARMONY] Ending INIT")
 
         self.harmony_controller = HarmonyController(harmony_ip=harmony_ip)
         self.queue = queue.Queue()
@@ -97,11 +102,12 @@ class SkillHarmonyControl:
             hermes.publish_end_session(intent_message.session_id, "")
 
     def subscribe_intent_callback(self, hermes, intent_message):
-        conf = self.snipsConfigParser.read_configuration_file(CONFIG_INI)
         self.action_wrapper(hermes, intent_message)
 
 
 if __name__ == "__main__":
+    print("[HARMONY] Starting MAIN")
+
     skillHarmonyControl = SkillHarmonyControl()
     mqtt_opts = MqttOptions()
     with Hermes(mqtt_options=mqtt_opts) as h:

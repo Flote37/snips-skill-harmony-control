@@ -63,12 +63,12 @@ class SkillHarmonyControl:
         if harmony_ip is None or watch_film_activity_id is None:
             print('No configuration')
 
-        print("[HARMONY] Ending INIT")
-
         self.harmony_controller = HarmonyController(harmony_ip=harmony_ip)
         self.queue = queue.Queue()
         self.thread_handler = ThreadHandler()
         self.thread_handler.start_run_loop()
+
+        print("[HARMONY] Ending INIT")
 
     def action_wrapper(self, hermes, intent_message):
         print("[HARMONY] Received")

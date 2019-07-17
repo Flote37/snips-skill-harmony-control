@@ -1,12 +1,11 @@
 #!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-import configparser
-import os
-
 from hermes_python.hermes import Hermes
 from hermes_python.ffi.utils import MqttOptions
 from hermes_python.ontology import *
+
+from os.path import expanduser
 import queue
 
 from harmony_controller.harmony_controller import HarmonyController

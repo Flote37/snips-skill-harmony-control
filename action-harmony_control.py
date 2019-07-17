@@ -7,12 +7,11 @@ import os
 from hermes_python.hermes import Hermes
 from hermes_python.ffi.utils import MqttOptions
 from hermes_python.ontology import *
-import io
+import queue
 
 from harmony_controller.harmony_controller import HarmonyController
 from snipshelpers.thread_handler import ThreadHandler
 from snipshelpers.config_parser import SnipsConfigParser
-import Queue
 
 CONFIGURATION_ENCODING_FORMAT = "utf-8"
 CONFIG_INI = "config.ini"
@@ -63,7 +62,7 @@ class SkillHarmonyControl:
             print('No configuration')
 
         self.harmony_controller = HarmonyController(harmony_ip=harmony_ip)
-        self.queue = Queue.Queue()
+        self.queue = queue.Queue()
         self.thread_handler = ThreadHandler()
         self.thread_handler.start_run_loop()
 
@@ -100,7 +99,7 @@ class SkillHarmonyControl:
 
     def subscribe_intent_callback(self, hermes, intent_message):
         conf = self.snipsConfigParser.read_configuration_file(CONFIG_INI)
-        self.action_wrapper(hermes, intent_message, conf)
+        self.action_wrapper(hermes, intent_message)
 
 
 if __name__ == "__main__":

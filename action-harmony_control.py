@@ -63,7 +63,10 @@ class SkillHarmonyControl:
         if harmony_ip is None or watch_film_activity_id is None:
             print('No configuration')
 
+        print("[HARMONY] Creating Harmony Controller")
         self.harmony_controller = HarmonyController(harmony_ip=harmony_ip)
+        print("[HARMONY] Harmony Controller Ready")
+
         self.queue = queue.Queue()
         self.thread_handler = ThreadHandler()
         self.thread_handler.start_run_loop()

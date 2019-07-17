@@ -68,8 +68,6 @@ class SkillHarmonyControl:
         print("[HARMONY] Harmony Controller Ready")
 
         self.queue = queue.Queue()
-        self.thread_handler = ThreadHandler()
-        self.thread_handler.start_run_loop()
 
         print("[HARMONY] Ending INIT")
 

@@ -1,5 +1,7 @@
 # Bindings for the hermes protocol 
-hermes-python>=0.1
+hermes-python>=0.2
 
 requests
-subprocess32
+
+# Harmony control lib
+aioharmony>=0.1.12

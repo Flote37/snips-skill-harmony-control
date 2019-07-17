@@ -1,32 +1,36 @@
 # -*-: coding utf-8 -*-
 """ Harmony controller for calling aioharmony bash command"""
-
+import asyncio
 import logging
-import subprocess32 as subprocess
+from aioharmony.harmonyapi import HarmonyAPI
 
 
 class HarmonyController:
     """ Harmony Controller for calling Harmony Hub action from Snips Intent """
 
-    def __init__(self, harmony_ip, aioharmony_path):
-        print ("Init Harmony")
+    def __init__(self, harmony_ip):
         self.harmony_ip = harmony_ip
-        self.aioharmony_path = aioharmony_path
+        self.harmony_api = HarmonyAPI(harmony_ip)
 
-        self.base_command = 'python3 ' + self.aioharmony_path + '/aioharmony'
         # Some logging conf
-        logging.basicConfig(filename='error.log', level=logging.WARNING)
+        logging.basicConfig(filename='error.log', level=logging.INFO)
 
     def start_activity(self, activity_id):
-        command = [self.base_command, '--harmony_ip ' + self.harmony_ip, 'start_activity ' + activity_id]
-        try:
-            subprocess.check_call(command)
-        except subprocess.CalledProcessError as e:
-            logging.error("Error while call aioharmony : " + str(e))
+        # @var Loop loop
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.__really_start_activity(activity_id))
+
+    async def __really_start_activity(self, activity_id):
+        if await self.harmony_api.connect():
+            await self.harmony_api.start_activity(activity_id)
+            await self.harmony_api.close()
 
     def power_off(self):
-        command = [self.base_command, '--harmony_ip ' + self.harmony_ip, 'power_off']
-        try:
-            subprocess.check_call(command)
-        except subprocess.CalledProcessError as e:
-            logging.error("Error while call aioharmony : " + str(e))
+        # @var Loop loop
+        loop = asyncio.get_event_loop()
+        loop.run_until_complete(self.__really_power_off())
+
+    async def __really_power_off(self):
+        if await self.harmony_api.connect():
+            await self.harmony_api.power_off()
+            await self.harmony_api.close()

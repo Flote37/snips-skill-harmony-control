@@ -1,9 +1,13 @@
-#!/usr/bin/env python2
+#!/usr/bin/env python3
 # -*- coding: utf-8 -*-
 
-from hermes_python.hermes import Hermes
-from os.path import expanduser
+import configparser
 import os
+
+from hermes_python.hermes import Hermes
+from hermes_python.ffi.utils import MqttOptions
+from hermes_python.ontology import *
+import io
 
 from harmony_controller.harmony_controller import HarmonyController
 from snipshelpers.thread_handler import ThreadHandler
@@ -11,8 +15,8 @@ from snipshelpers.config_parser import SnipsConfigParser
 import Queue
 
 CONFIGURATION_ENCODING_FORMAT = "utf-8"
-
 CONFIG_INI = "config.ini"
+
 CACHE_INI = expanduser("~/.harmony_cache/cache.ini")
 CACHE_INI_DIR = expanduser("~/.harmony_cache/")
 
@@ -22,28 +26,25 @@ MQTT_ADDR = "{}:{}".format(MQTT_IP_ADDR, str(MQTT_PORT))
 
 _id = "snips-skill-harmony-control"
 
-AIOHARMONY_PATH = "aioharmony_path"
 HARMONY_IP_CONFIG_KEY = "harmony_ip"
 WATCH_FILM_ACTIVITY_CONFIG_KEY = "watch_film_activity_id"
 
 
 class SkillHarmonyControl:
+    snipsConfigParser = SnipsConfigParser()
+
     def __init__(self):
         try:
             config = SnipsConfigParser.read_configuration_file(CONFIG_INI)
         except:
             config = None
 
-        aioharmony_path=None
+        # Config variables to fill
         harmony_ip = None
         watch_film_activity_id = None
-        if config and config.get('secret', None) is not None:
-            # Add Lib aioharmony to Path
-            if config.get('global').get(AIOHARMONY_PATH, None) is not None:
-                aioharmony_path = config.get('global').get(AIOHARMONY_PATH)
-                if aioharmony_path == "":
-                    aioharmony_path = None
 
+        # Getting conf
+        if config and config.get('secret', None) is not None:
             # Get Harmony IP from Config
             if config.get('secret').get(HARMONY_IP_CONFIG_KEY, None) is not None:
                 harmony_ip = config.get('secret').get(HARMONY_IP_CONFIG_KEY)
@@ -61,18 +62,15 @@ class SkillHarmonyControl:
         if harmony_ip is None or watch_film_activity_id is None:
             print('No configuration')
 
-        self.harmony_controller = HarmonyController(harmony_ip=harmony_ip, aioharmony_path=aioharmony_path)
-        self.update_config(CACHE_INI, config, harmony_ip, watch_film_activity_id)
+        self.harmony_controller = HarmonyController(harmony_ip=harmony_ip)
         self.queue = Queue.Queue()
         self.thread_handler = ThreadHandler()
-        self.thread_handler.run(target=self.start_blocking)
         self.thread_handler.start_run_loop()
 
-    # section -> handlers of intents
-    def callback(self, hermes, intent_message):
+    def action_wrapper(self, hermes, intent_message):
         print("[HARMONY] Received")
-        # all the intents have a house_room slot, extract here
 
+        # all the intents have a house_room slot, extract here
         intent_name = intent_message.intent.intent_name
         if ':' in intent_name:
             intent_name = intent_name.split(":")[1]
@@ -100,23 +98,14 @@ class SkillHarmonyControl:
             # more design
             hermes.publish_end_session(intent_message.session_id, "")
 
-    def update_config(self, filename, data, harmony_ip, watch_film_activity_id):
-        if not os.path.exists(CACHE_INI_DIR):
-            os.makedirs(CACHE_INI_DIR)
-        if 'secret' not in data or data['secret'] is None:
-            data['secret'] = {}
-        data['secret'][HARMONY_IP_CONFIG_KEY] = harmony_ip
-        data['secret'][WATCH_FILM_ACTIVITY_CONFIG_KEY] = watch_film_activity_id
-        SnipsConfigParser.write_configuration_file(filename, data)
-
-    def start_blocking(self, run_event):
-        while run_event.is_set():
-            try:
-                self.queue.get(False)
-            except Queue.Empty:
-                with Hermes(MQTT_ADDR) as h:
-                    h.subscribe_intents(self.callback).start()
+    def subscribe_intent_callback(self, hermes, intent_message):
+        conf = self.snipsConfigParser.read_configuration_file(CONFIG_INI)
+        self.action_wrapper(hermes, intent_message, conf)
 
 
 if __name__ == "__main__":
-    SkillHarmonyControl()
+    skillHarmonyControl = SkillHarmonyControl()
+    mqtt_opts = MqttOptions()
+    with Hermes(mqtt_options=mqtt_opts) as h:
+        h.subscribe_intent("{{intent_id}}", skillHarmonyControl.subscribe_intent_callback) \
+            .start()

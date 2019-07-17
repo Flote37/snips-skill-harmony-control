@@ -17,7 +17,7 @@ class HarmonyController:
 
     def start_activity(self, activity_id):
         # @var Loop loop
-        loop = asyncio.get_event_loop()
+        loop = asyncio.new_event_loop()
         loop.run_until_complete(self.__really_start_activity(activity_id))
 
     async def __really_start_activity(self, activity_id):
@@ -27,7 +27,7 @@ class HarmonyController:
 
     def power_off(self):
         # @var Loop loop
-        loop = asyncio.get_event_loop()
+        loop = asyncio.new_event_loop()
         loop.run_until_complete(self.__really_power_off())
 
     async def __really_power_off(self):
